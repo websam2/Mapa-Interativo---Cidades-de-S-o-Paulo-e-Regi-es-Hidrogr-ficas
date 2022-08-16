@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" href="css/leaflet.css" />
+    <link rel="stylesheet" href="css/L.Control.Locate.min.css" />
+    <link rel="stylesheet" href="css/qgis2web.css" />
+    <link rel="stylesheet" href="css/fontawesome-all.min.css" />
+    <link rel="stylesheet" href="css/leaflet-search.css" />
+    <link rel="stylesheet" href="css/filter.css" />
+    <link rel="stylesheet" href="css/nouislider.min.css" />
+    <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css" />
+    <title></title>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script src="js/qgis2web_expressions.js"></script>
+    <script src="js/leaflet.js"></script>
+    <script src="js/L.Control.Locate.min.js"></script>
+    <script src="js/leaflet.rotatedMarker.js"></script>
+    <script src="js/leaflet.pattern.js"></script>
+    <script src="js/leaflet-hash.js"></script>
+    <script src="js/Autolinker.min.js"></script>
+    <script src="js/rbush.min.js"></script>
+    <script src="js/labelgun.min.js"></script>
+    <script src="js/labels.js"></script>
+    <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+    <script src="js/leaflet-search.js"></script>
+    <script src="js/tailDT.js"></script>
+    <script src="js/nouislider.min.js"></script>
+    <script src="js/wNumb.js"></script>
+    <script src="data/SP_Municipios_2021_1.js"></script>
+    <script src="data/RegioesHidrograficas_2.js"></script>
+    <script>
+      var highlightLayer;
+      function highlightFeature(e) {
+        highlightLayer = e.target;
+
+        if (e.target.feature.geometry.type === "LineString") {
+          highlightLayer.setStyle({
+            color: "#ffff00",
+          });
+        } else {
+          highlightLayer.setStyle({
+            fillColor: "#ffff00",
+            fillOpacity: 1,
+          });
+        }
+        highlightLayer.openPopup();
+      }
+      var map = L.map("map", {
+        zoomControl: true,
+        maxZoom: 28,
+        minZoom: 1,
+      }).fitBounds([
+        [-25.972939728929507, -55.43488988292946],
+        [-18.948476477347604, -42.332736843536665],
+      ]);
+      var hash = new L.Hash(map);
+      map.attributionControl.setPrefix(
+        '<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>'
+      );
+      var autolinker = new Autolinker({
+        truncate: { length: 30, location: "smart" },
+      });
+      L.control.locate({ locateOptions: { maxZoom: 19 } }).addTo(map);
+      var bounds_group = new L.featureGroup([]);
+      function setBounds() {
+        map.setMaxBounds(map.getBounds());
+      }
+      map.createPane("pane_GoogleMaps_0");
+      map.getPane("pane_GoogleMaps_0").style.zIndex = 400;
+      var layer_GoogleMaps_0 = L.tileLayer(
+        "http://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+        {
+          pane: "pane_GoogleMaps_0",
+          opacity: 1.0,
+          attribution: "",
+          minZoom: 1,
+          maxZoom: 28,
+          minNativeZoom: 0,
+          maxNativeZoom: 22,
+        }
+      );
+      layer_GoogleMaps_0;
+      map.addLayer(layer_GoogleMaps_0);
+      function pop_SP_Municipios_2021_1(feature, layer) {
+        layer.on({
+          mouseout: function (e) {
+            for (i in e.target._eventParents) {
+              e.target._eventParents[i].resetStyle(e.target);
+            }
+            if (typeof layer.closePopup == "function") {
+              layer.closePopup();
+            } else {
+              layer.eachLayer(function (feature) {
+                feature.closePopup();
+              });
+            }
+          },
+          mouseover: highlightFeature,
+        });
+        var popupContent =
+          '<table>\
+                    <tr>\
+                        <td colspan="2">' +
+          (feature.properties["NM_MUN"] !== null
+            ? autolinker.link(feature.properties["NM_MUN"].toLocaleString())
+            : "") +
+          "</td>\
+                    </tr>\
+                </table>";
+        layer.bindPopup(popupContent, { maxHeight: 400 });
+      }
+
+      function style_SP_Municipios_2021_1_0() {
+        return {
+          pane: "pane_SP_Municipios_2021_1",
+          opacity: 1,
+          color: "rgba(38,89,128,1.0)",
+          dashArray: "",
+          lineCap: "butt",
+          lineJoin: "miter",
+          weight: 1.0,
+          fill: true,
+          fillOpacity: 1,
+          fillColor: "rgba(55,126,184,1.0)",
+          interactive: true,
+        };
+      }
+      map.createPane("pane_SP_Municipios_2021_1");
+      map.getPane("pane_SP_Municipios_2021_1").style.zIndex = 401;
+      map.getPane("pane_SP_Municipios_2021_1").style["mix-blend-mode"] =
+        "normal";
+      var layer_SP_Municipios_2021_1 = new L.geoJson(
+        json_SP_Municipios_2021_1,
+        {
+          attribution: "",
+          interactive: true,
+          dataVar: "json_SP_Municipios_2021_1",
+          layerName: "layer_SP_Municipios_2021_1",
+          pane: "pane_SP_Municipios_2021_1",
+          onEachFeature: pop_SP_Municipios_2021_1,
+          style: style_SP_Municipios_2021_1_0,
+        }
+      );
+      bounds_group.addLayer(layer_SP_Municipios_2021_1);
+      map.addLayer(layer_SP_Municipios_2021_1);
+      function pop_RegioesHidrograficas_2(feature, layer) {
+        layer.on({
+          mouseout: function (e) {
+            for (i in e.target._eventParents) {
+              e.target._eventParents[i].resetStyle(e.target);
+            }
+            if (typeof layer.closePopup == "function") {
+              layer.closePopup();
+            } else {
+              layer.eachLayer(function (feature) {
+                feature.closePopup();
+              });
+            }
+          },
+          mouseover: highlightFeature,
+        });
+        var popupContent =
+          '<table>\
+                    <tr>\
+                        <td colspan="2">' +
+          (feature.properties["Codigo"] !== null
+            ? autolinker.link(feature.properties["Codigo"].toLocaleString())
+            : "") +
+          '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' +
+          (feature.properties["Nome"] !== null
+            ? autolinker.link(feature.properties["Nome"].toLocaleString())
+            : "") +
+          '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' +
+          (feature.properties["Reg_Hidrog"] !== null
+            ? autolinker.link(feature.properties["Reg_Hidrog"].toLocaleString())
+            : "") +
+          "</td>\
+                    </tr>\
+                </table>";
+        layer.bindPopup(popupContent, { maxHeight: 400 });
+      }
+
+      function style_RegioesHidrograficas_2_0() {
+        return {
+          pane: "pane_RegioesHidrograficas_2",
+          opacity: 1,
+          color: "rgba(255,1,1,1.0)",
+          dashArray: "",
+          lineCap: "butt",
+          lineJoin: "miter",
+          weight: 2.0,
+          fillOpacity: 0,
+          interactive: false,
+        };
+      }
+      map.createPane("pane_RegioesHidrograficas_2");
+      map.getPane("pane_RegioesHidrograficas_2").style.zIndex = 402;
+      map.getPane("pane_RegioesHidrograficas_2").style["mix-blend-mode"] =
+        "normal";
+      var layer_RegioesHidrograficas_2 = new L.geoJson(
+        json_RegioesHidrograficas_2,
+        {
+          attribution: "",
+          interactive: false,
+          dataVar: "json_RegioesHidrograficas_2",
+          layerName: "layer_RegioesHidrograficas_2",
+          pane: "pane_RegioesHidrograficas_2",
+          onEachFeature: pop_RegioesHidrograficas_2,
+          style: style_RegioesHidrograficas_2_0,
+        }
+      );
+      bounds_group.addLayer(layer_RegioesHidrograficas_2);
+      map.addLayer(layer_RegioesHidrograficas_2);
+      var osmGeocoder = new L.Control.Geocoder({
+        collapsed: true,
+        position: "topleft",
+        text: "Search",
+        title: "Testing",
+      }).addTo(map);
+      document.getElementsByClassName(
+        "leaflet-control-geocoder-icon"
+      )[0].className += " fa fa-search";
+      document.getElementsByClassName(
+        "leaflet-control-geocoder-icon"
+      )[0].title += "Procure uma cidade";
+      setBounds();
+      var i = 0;
+      layer_SP_Municipios_2021_1.eachLayer(function (layer) {
+        var context = {
+          feature: layer.feature,
+          variables: {},
+        };
+        layer.bindTooltip(
+          layer.feature.properties["NM_MUN"] !== null
+            ? String(
+                "<div style=\"color: #323232; font-size: 5pt; font-family: 'Open Sans', sans-serif;\">" +
+                  layer.feature.properties["NM_MUN"]
+              ) + "</div>"
+            : "",
+          {
+            permanent: true,
+            offset: [-0, -16],
+            className: "css_SP_Municipios_2021_1",
+          }
+        );
+        labels.push(layer);
+        totalMarkers += 1;
+        layer.added = true;
+        addLabel(layer, i);
+        i++;
+      });
+      var i = 0;
+      layer_RegioesHidrograficas_2.eachLayer(function (layer) {
+        var context = {
+          feature: layer.feature,
+          variables: {},
+        };
+        layer.bindTooltip(
+          layer.feature.properties["Nome"] !== null
+            ? String(
+                "<div style=\"color: #004963; font-size: 6pt; font-family: 'Cambria', sans-serif;\">" +
+                  layer.feature.properties["Nome"]
+              ) + "</div>"
+            : "",
+          {
+            permanent: true,
+            offset: [-0, -16],
+            className: "css_RegioesHidrograficas_2",
+          }
+        );
+        labels.push(layer);
+        totalMarkers += 1;
+        layer.added = true;
+        addLabel(layer, i);
+        i++;
+      });
+      map.addControl(
+        new L.Control.Search({
+          layer: layer_SP_Municipios_2021_1,
+          initial: false,
+          hideMarkerOnCollapse: true,
+          propertyName: "NM_MUN",
+        })
+      );
+      document.getElementsByClassName("search-button")[0].className +=
+        " fa fa-binoculars";
+      var mapDiv = document.getElementById("map");
+      var row = document.createElement("div");
+      row.className = "row";
+      row.id = "all";
+      row.style.height = "100%";
+      var col1 = document.createElement("div");
+      col1.className = "col9";
+      col1.id = "mapWindow";
+      col1.style.height = "99%";
+      col1.style.width = "100%";
+      col1.style.display = "inline-block";
+      var col2 = document.createElement("div");
+      col2.className = "col3";
+      col2.id = "menu";
+      col2.style.display = "inline-block";
+      mapDiv.parentNode.insertBefore(row, mapDiv);
+      document.getElementById("all").appendChild(col1);
+      document.getElementById("all").appendChild(col2);
+      col1.appendChild(mapDiv);
+      var Filters = { NM_MUN: "str" };
+      function filterFunc() {
+        map.eachLayer(function (lyr) {
+          if ("options" in lyr && "dataVar" in lyr["options"]) {
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try {
+              for (key in Filters) {
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "");
+                if (Filters[key] == "str" || Filters[key] == "bool") {
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options;
+                  for (var i = 0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                  try {
+                    if (key in features[0].properties) {
+                      for (i = features.length - 1; i >= 0; --i) {
+                        if (
+                          selection.indexOf(features[i].properties[key]) < 0 &&
+                          selection.length > 0
+                        ) {
+                          features.splice(i, 1);
+                        }
+                      }
+                    }
+                  } catch (err) {}
+                }
+                if (Filters[key] == "int") {
+                  sliderVals = document
+                    .getElementById("div_" + keyS)
+                    .noUiSlider.get();
+                  try {
+                    if (key in features[0].properties) {
+                      for (i = features.length - 1; i >= 0; --i) {
+                        if (
+                          parseInt(features[i].properties[key]) <
+                            sliderVals[0] ||
+                          parseInt(features[i].properties[key]) > sliderVals[1]
+                        ) {
+                          features.splice(i, 1);
+                        }
+                      }
+                    }
+                  } catch (err) {}
+                }
+                if (Filters[key] == "real") {
+                  sliderVals = document
+                    .getElementById("div_" + keyS)
+                    .noUiSlider.get();
+                  try {
+                    if (key in features[0].properties) {
+                      for (i = features.length - 1; i >= 0; --i) {
+                        if (
+                          features[i].properties[key] < sliderVals[0] ||
+                          features[i].properties[key] > sliderVals[1]
+                        ) {
+                          features.splice(i, 1);
+                        }
+                      }
+                    }
+                  } catch (err) {}
+                }
+                if (
+                  Filters[key] == "date" ||
+                  Filters[key] == "datetime" ||
+                  Filters[key] == "time"
+                ) {
+                  try {
+                    if (key in features[0].properties) {
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, "");
+                      startdate = document
+                        .getElementById("dat_" + HTMLkey + "_date1")
+                        .value.replace(" ", "T");
+                      enddate = document
+                        .getElementById("dat_" + HTMLkey + "_date2")
+                        .value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i) {
+                        if (
+                          features[i].properties[key] < startdate ||
+                          features[i].properties[key] > enddate
+                        ) {
+                          features.splice(i, 1);
+                        }
+                      }
+                    }
+                  } catch (err) {}
+                }
+              }
+            } catch (err) {}
+            this[lyr["options"]["layerName"]].clearLayers();
+            this[lyr["options"]["layerName"]].addData(features);
+            var i = 0;
+            layer_SP_Municipios_2021_1.eachLayer(function (layer) {
+              var context = {
+                feature: layer.feature,
+                variables: {},
+              };
+              layer.bindTooltip(
+                layer.feature.properties["NM_MUN"] !== null
+                  ? String(
+                      "<div style=\"color: #323232; font-size: 5pt; font-family: 'Open Sans', sans-serif;\">" +
+                        layer.feature.properties["NM_MUN"]
+                    ) + "</div>"
+                  : "",
+                {
+                  permanent: true,
+                  offset: [-0, -16],
+                  className: "css_SP_Municipios_2021_1",
+                }
+              );
+              labels.push(layer);
+              totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+            });
+            var i = 0;
+            layer_RegioesHidrograficas_2.eachLayer(function (layer) {
+              var context = {
+                feature: layer.feature,
+                variables: {},
+              };
+              layer.bindTooltip(
+                layer.feature.properties["Nome"] !== null
+                  ? String(
+                      "<div style=\"color: #004963; font-size: 6pt; font-family: 'Cambria', sans-serif;\">" +
+                        layer.feature.properties["Nome"]
+                    ) + "</div>"
+                  : "",
+                {
+                  permanent: true,
+                  offset: [-0, -16],
+                  className: "css_RegioesHidrograficas_2",
+                }
+              );
+              labels.push(layer);
+              totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+            });
+          }
+        });
+      }
+      document
+        .getElementById("menu")
+        .appendChild(document.createElement("div"));
+      var div_NM_MUN = document.createElement("div");
+      div_NM_MUN.id = "div_NM_MUN";
+      div_NM_MUN.className = "filterselect";
+      document.getElementById("menu").appendChild(div_NM_MUN);
+      sel_NM_MUN = document.createElement("select");
+      sel_NM_MUN.multiple = true;
+      sel_NM_MUN.size = 10;
+      sel_NM_MUN.id = "sel_NM_MUN";
+      var NM_MUN_options_str = "<option value='' unselected></option>";
+      sel_NM_MUN.onchange = function () {
+        filterFunc();
+      };
+      NM_MUN_options_str += '<option value="Adamantina">Adamantina</option>';
+      NM_MUN_options_str += '<option value="Adolfo">Adolfo</option>';
+      NM_MUN_options_str += '<option value="Aguaí">Aguaí</option>';
+      NM_MUN_options_str += '<option value="Agudos">Agudos</option>';
+      NM_MUN_options_str += '<option value="Alambari">Alambari</option>';
+      NM_MUN_options_str +=
+        '<option value="Alfredo Marcondes">Alfredo Marcondes</option>';
+      NM_MUN_options_str += '<option value="Altair">Altair</option>';
+      NM_MUN_options_str += '<option value="Altinópolis">Altinópolis</option>';
+      NM_MUN_options_str += '<option value="Alto Alegre">Alto Alegre</option>';
+      NM_MUN_options_str += '<option value="Alumínio">Alumínio</option>';
+      NM_MUN_options_str += '<option value="Alvinlândia">Alvinlândia</option>';
+      NM_MUN_options_str += '<option value="Americana">Americana</option>';
+      NM_MUN_options_str += '<option value="Amparo">Amparo</option>';
+      NM_MUN_options_str +=
+        '<option value="Américo Brasiliense">Américo Brasiliense</option>';
+      NM_MUN_options_str +=
+        '<option value="Américo de Campos">Américo de Campos</option>';
+      NM_MUN_options_str += '<option value="Analândia">Analândia</option>';
+      NM_MUN_options_str += '<option value="Andradina">Andradina</option>';
+      NM_MUN_options_str += '<option value="Angatuba">Angatuba</option>';
+      NM_MUN_options_str += '<option value="Anhembi">Anhembi</option>';
+      NM_MUN_options_str += '<option value="Anhumas">Anhumas</option>';
+      NM_MUN_options_str += '<option value="Aparecida">Aparecida</option>';
+      NM_MUN_options_str +=
+        '<option value="Aparecida d&apos;Oeste">Aparecida d&apos;Oeste</option>';
+      NM_MUN_options_str += '<option value="Apiaí">Apiaí</option>';
+      NM_MUN_options_str += '<option value="Aramina">Aramina</option>';
+      NM_MUN_options_str += '<option value="Arandu">Arandu</option>';
+      NM_MUN_options_str += '<option value="Arapeí">Arapeí</option>';
+      NM_MUN_options_str += '<option value="Araraquara">Araraquara</option>';
+      NM_MUN_options_str += '<option value="Araras">Araras</option>';
+      NM_MUN_options_str +=
+        '<option value="Araçariguama">Araçariguama</option>';
+      NM_MUN_options_str += '<option value="Araçatuba">Araçatuba</option>';
+      NM_MUN_options_str +=
+        '<option value="Araçoiaba da Serra">Araçoiaba da Serra</option>';
+      NM_MUN_options_str += '<option value="Arco-Íris">Arco-Íris</option>';
+      NM_MUN_options_str += '<option value="Arealva">Arealva</option>';
+      NM_MUN_options_str += '<option value="Areias">Areias</option>';
+      NM_MUN_options_str += '<option value="Areiópolis">Areiópolis</option>';
+      NM_MUN_options_str += '<option value="Ariranha">Ariranha</option>';
+      NM_MUN_options_str +=
+        '<option value="Artur Nogueira">Artur Nogueira</option>';
+      NM_MUN_options_str += '<option value="Arujá">Arujá</option>';
+      NM_MUN_options_str += '<option value="Aspásia">Aspásia</option>';
+      NM_MUN_options_str += '<option value="Assis">Assis</option>';
+      NM_MUN_options_str += '<option value="Atibaia">Atibaia</option>';
+      NM_MUN_options_str += '<option value="Auriflama">Auriflama</option>';
+      NM_MUN_options_str += '<option value="Avanhandava">Avanhandava</option>';
+      NM_MUN_options_str += '<option value="Avaré">Avaré</option>';
+      NM_MUN_options_str += '<option value="Avaí">Avaí</option>';
+      NM_MUN_options_str +=
+        '<option value="Bady Bassitt">Bady Bassitt</option>';
+      NM_MUN_options_str += '<option value="Balbinos">Balbinos</option>';
+      NM_MUN_options_str += '<option value="Bananal">Bananal</option>';
+      NM_MUN_options_str += '<option value="Barbosa">Barbosa</option>';
+      NM_MUN_options_str += '<option value="Bariri">Bariri</option>';
+      NM_MUN_options_str +=
+        '<option value="Barra Bonita">Barra Bonita</option>';
+      NM_MUN_options_str +=
+        '<option value="Barra do Chapéu">Barra do Chapéu</option>';
+      NM_MUN_options_str +=
+        '<option value="Barra do Turvo">Barra do Turvo</option>';
+      NM_MUN_options_str += '<option value="Barretos">Barretos</option>';
+      NM_MUN_options_str += '<option value="Barrinha">Barrinha</option>';
+      NM_MUN_options_str += '<option value="Barueri">Barueri</option>';
+      NM_MUN_options_str +=
+        '<option value="Barão de Antonina">Barão de Antonina</option>';
+      NM_MUN_options_str += '<option value="Bastos">Bastos</option>';
+      NM_MUN_options_str += '<option value="Batatais">Batatais</option>';
+      NM_MUN_options_str += '<option value="Bauru">Bauru</option>';
+      NM_MUN_options_str += '<option value="Bebedouro">Bebedouro</option>';
+      NM_MUN_options_str +=
+        '<option value="Bento de Abreu">Bento de Abreu</option>';
+      NM_MUN_options_str +=
+        '<option value="Bernardino de Campos">Bernardino de Campos</option>';
+      NM_MUN_options_str += '<option value="Bertioga">Bertioga</option>';
+      NM_MUN_options_str += '<option value="Bilac">Bilac</option>';
+      NM_MUN_options_str += '<option value="Birigui">Birigui</option>';
+      NM_MUN_options_str +=
+        '<option value="Biritiba Mirim">Biritiba Mirim</option>';
+      NM_MUN_options_str +=
+        '<option value="Boa Esperança do Sul">Boa Esperança do Sul</option>';
+      NM_MUN_options_str += '<option value="Bocaina">Bocaina</option>';
+      NM_MUN_options_str += '<option value="Bofete">Bofete</option>';
+      NM_MUN_options_str += '<option value="Boituva">Boituva</option>';
+      NM_MUN_options_str +=
+        '<option value="Bom Jesus dos Perdões">Bom Jesus dos Perdões</option>';
+      NM_MUN_options_str +=
+        '<option value="Bom Sucesso de Itararé">Bom Sucesso de Itararé</option>';
+      NM_MUN_options_str += '<option value="Boracéia">Boracéia</option>';
+      NM_MUN_options_str += '<option value="Borborema">Borborema</option>';
+      NM_MUN_options_str += '<option value="Borebi">Borebi</option>';
+      NM_MUN_options_str += '<option value="Borá">Borá</option>';
+      NM_MUN_options_str += '<option value="Botucatu">Botucatu</option>';
+      NM_MUN_options_str +=
+        '<option value="Bragança Paulista">Bragança Paulista</option>';
+      NM_MUN_options_str += '<option value="Braúna">Braúna</option>';
+      NM_MUN_options_str +=
+        '<option value="Brejo Alegre">Brejo Alegre</option>';
+      NM_MUN_options_str += '<option value="Brodowski">Brodowski</option>';
+      NM_MUN_options_str += '<option value="Brotas">Brotas</option>';
+      NM_MUN_options_str += '<option value="Buri">Buri</option>';
+      NM_MUN_options_str += '<option value="Buritama">Buritama</option>';
+      NM_MUN_options_str += '<option value="Buritizal">Buritizal</option>';
+      NM_MUN_options_str += '<option value="Bálsamo">Bálsamo</option>';
+      NM_MUN_options_str += '<option value="Cabreúva">Cabreúva</option>';
+      NM_MUN_options_str +=
+        '<option value="Cabrália Paulista">Cabrália Paulista</option>';
+      NM_MUN_options_str +=
+        '<option value="Cachoeira Paulista">Cachoeira Paulista</option>';
+      NM_MUN_options_str += '<option value="Caconde">Caconde</option>';
+      NM_MUN_options_str += '<option value="Cafelândia">Cafelândia</option>';
+      NM_MUN_options_str += '<option value="Caiabu">Caiabu</option>';
+      NM_MUN_options_str += '<option value="Caieiras">Caieiras</option>';
+      NM_MUN_options_str += '<option value="Caiuá">Caiuá</option>';
+      NM_MUN_options_str += '<option value="Cajamar">Cajamar</option>';
+      NM_MUN_options_str += '<option value="Cajati">Cajati</option>';
+      NM_MUN_options_str += '<option value="Cajobi">Cajobi</option>';
+      NM_MUN_options_str += '<option value="Cajuru">Cajuru</option>';
+      NM_MUN_options_str +=
+        '<option value="Campina do Monte Alegre">Campina do Monte Alegre</option>';
+      NM_MUN_options_str += '<option value="Campinas">Campinas</option>';
+      NM_MUN_options_str +=
+        '<option value="Campo Limpo Paulista">Campo Limpo Paulista</option>';
+      NM_MUN_options_str +=
+        '<option value="Campos Novos Paulista">Campos Novos Paulista</option>';
+      NM_MUN_options_str +=
+        '<option value="Campos do Jordão">Campos do Jordão</option>';
+      NM_MUN_options_str += '<option value="Cananéia">Cananéia</option>';
+      NM_MUN_options_str += '<option value="Canas">Canas</option>';
+      NM_MUN_options_str += '<option value="Canitar">Canitar</option>';
+      NM_MUN_options_str +=
+        '<option value="Capela do Alto">Capela do Alto</option>';
+      NM_MUN_options_str += '<option value="Capivari">Capivari</option>';
+      NM_MUN_options_str +=
+        '<option value="Capão Bonito">Capão Bonito</option>';
+      NM_MUN_options_str +=
+        '<option value="Caraguatatuba">Caraguatatuba</option>';
+      NM_MUN_options_str += '<option value="Carapicuíba">Carapicuíba</option>';
+      NM_MUN_options_str += '<option value="Cardoso">Cardoso</option>';
+      NM_MUN_options_str += '<option value="Casa Branca">Casa Branca</option>';
+      NM_MUN_options_str += '<option value="Castilho">Castilho</option>';
+      NM_MUN_options_str += '<option value="Catanduva">Catanduva</option>';
+      NM_MUN_options_str += '<option value="Catiguá">Catiguá</option>';
+      NM_MUN_options_str += '<option value="Caçapava">Caçapava</option>';
+      NM_MUN_options_str += '<option value="Cedral">Cedral</option>';
+      NM_MUN_options_str +=
+        '<option value="Cerqueira César">Cerqueira César</option>';
+      NM_MUN_options_str += '<option value="Cerquilho">Cerquilho</option>';
+      NM_MUN_options_str +=
+        '<option value="Cesário Lange">Cesário Lange</option>';
+      NM_MUN_options_str += '<option value="Charqueada">Charqueada</option>';
+      NM_MUN_options_str += '<option value="Chavantes">Chavantes</option>';
+      NM_MUN_options_str += '<option value="Clementina">Clementina</option>';
+      NM_MUN_options_str += '<option value="Colina">Colina</option>';
+      NM_MUN_options_str += '<option value="Colômbia">Colômbia</option>';
+      NM_MUN_options_str += '<option value="Conchal">Conchal</option>';
+      NM_MUN_options_str += '<option value="Conchas">Conchas</option>';
+      NM_MUN_options_str +=
+        '<option value="Cordeirópolis">Cordeirópolis</option>';
+      NM_MUN_options_str += '<option value="Coroados">Coroados</option>';
+      NM_MUN_options_str +=
+        '<option value="Coronel Macedo">Coronel Macedo</option>';
+      NM_MUN_options_str += '<option value="Corumbataí">Corumbataí</option>';
+      NM_MUN_options_str += '<option value="Cosmorama">Cosmorama</option>';
+      NM_MUN_options_str += '<option value="Cosmópolis">Cosmópolis</option>';
+      NM_MUN_options_str += '<option value="Cotia">Cotia</option>';
+      NM_MUN_options_str += '<option value="Cravinhos">Cravinhos</option>';
+      NM_MUN_options_str +=
+        '<option value="Cristais Paulista">Cristais Paulista</option>';
+      NM_MUN_options_str += '<option value="Cruzeiro">Cruzeiro</option>';
+      NM_MUN_options_str += '<option value="Cruzália">Cruzália</option>';
+      NM_MUN_options_str += '<option value="Cubatão">Cubatão</option>';
+      NM_MUN_options_str += '<option value="Cunha">Cunha</option>';
+      NM_MUN_options_str +=
+        '<option value="Cássia dos Coqueiros">Cássia dos Coqueiros</option>';
+      NM_MUN_options_str +=
+        '<option value="Cândido Mota">Cândido Mota</option>';
+      NM_MUN_options_str +=
+        '<option value="Cândido Rodrigues">Cândido Rodrigues</option>';
+      NM_MUN_options_str += '<option value="Descalvado">Descalvado</option>';
+      NM_MUN_options_str += '<option value="Diadema">Diadema</option>';
+      NM_MUN_options_str += '<option value="Dirce Reis">Dirce Reis</option>';
+      NM_MUN_options_str +=
+        '<option value="Divinolândia">Divinolândia</option>';
+      NM_MUN_options_str += '<option value="Dobrada">Dobrada</option>';
+      NM_MUN_options_str +=
+        '<option value="Dois Córregos">Dois Córregos</option>';
+      NM_MUN_options_str +=
+        '<option value="Dolcinópolis">Dolcinópolis</option>';
+      NM_MUN_options_str += '<option value="Dourado">Dourado</option>';
+      NM_MUN_options_str += '<option value="Dracena">Dracena</option>';
+      NM_MUN_options_str += '<option value="Duartina">Duartina</option>';
+      NM_MUN_options_str += '<option value="Dumont">Dumont</option>';
+      NM_MUN_options_str += '<option value="Echaporã">Echaporã</option>';
+      NM_MUN_options_str += '<option value="Eldorado">Eldorado</option>';
+      NM_MUN_options_str +=
+        '<option value="Elias Fausto">Elias Fausto</option>';
+      NM_MUN_options_str += '<option value="Elisiário">Elisiário</option>';
+      NM_MUN_options_str += '<option value="Embaúba">Embaúba</option>';
+      NM_MUN_options_str +=
+        '<option value="Embu das Artes">Embu das Artes</option>';
+      NM_MUN_options_str += '<option value="Embu-Guaçu">Embu-Guaçu</option>';
+      NM_MUN_options_str +=
+        '<option value="Emilianópolis">Emilianópolis</option>';
+      NM_MUN_options_str +=
+        '<option value="Engenheiro Coelho">Engenheiro Coelho</option>';
+      NM_MUN_options_str +=
+        '<option value="Espírito Santo do Pinhal">Espírito Santo do Pinhal</option>';
+      NM_MUN_options_str +=
+        '<option value="Espírito Santo do Turvo">Espírito Santo do Turvo</option>';
+      NM_MUN_options_str +=
+        '<option value="Estiva Gerbi">Estiva Gerbi</option>';
+      NM_MUN_options_str +=
+        '<option value="Estrela d&apos;Oeste">Estrela d&apos;Oeste</option>';
+      NM_MUN_options_str +=
+        '<option value="Estrela do Norte">Estrela do Norte</option>';
+      NM_MUN_options_str +=
+        '<option value="Euclides da Cunha Paulista">Euclides da Cunha Paulista</option>';
+      NM_MUN_options_str += '<option value="Fartura">Fartura</option>';
+      NM_MUN_options_str +=
+        '<option value="Fernando Prestes">Fernando Prestes</option>';
+      NM_MUN_options_str +=
+        '<option value="Fernandópolis">Fernandópolis</option>';
+      NM_MUN_options_str += '<option value="Fernão">Fernão</option>';
+      NM_MUN_options_str +=
+        '<option value="Ferraz de Vasconcelos">Ferraz de Vasconcelos</option>';
+      NM_MUN_options_str += '<option value="Flora Rica">Flora Rica</option>';
+      NM_MUN_options_str += '<option value="Floreal">Floreal</option>';
+      NM_MUN_options_str += '<option value="Florínea">Florínea</option>';
+      NM_MUN_options_str +=
+        '<option value="Flórida Paulista">Flórida Paulista</option>';
+      NM_MUN_options_str += '<option value="Franca">Franca</option>';
+      NM_MUN_options_str +=
+        '<option value="Francisco Morato">Francisco Morato</option>';
+      NM_MUN_options_str +=
+        '<option value="Franco da Rocha">Franco da Rocha</option>';
+      NM_MUN_options_str +=
+        '<option value="Gabriel Monteiro">Gabriel Monteiro</option>';
+      NM_MUN_options_str += '<option value="Garça">Garça</option>';
+      NM_MUN_options_str +=
+        '<option value="Gastão Vidigal">Gastão Vidigal</option>';
+      NM_MUN_options_str +=
+        '<option value="Gavião Peixoto">Gavião Peixoto</option>';
+      NM_MUN_options_str +=
+        '<option value="General Salgado">General Salgado</option>';
+      NM_MUN_options_str += '<option value="Getulina">Getulina</option>';
+      NM_MUN_options_str += '<option value="Glicério">Glicério</option>';
+      NM_MUN_options_str += '<option value="Guaimbê">Guaimbê</option>';
+      NM_MUN_options_str += '<option value="Guaiçara">Guaiçara</option>';
+      NM_MUN_options_str += '<option value="Guapiara">Guapiara</option>';
+      NM_MUN_options_str += '<option value="Guapiaçu">Guapiaçu</option>';
+      NM_MUN_options_str += '<option value="Guaraci">Guaraci</option>';
+      NM_MUN_options_str +=
+        '<option value="Guarani d&apos;Oeste">Guarani d&apos;Oeste</option>';
+      NM_MUN_options_str += '<option value="Guarantã">Guarantã</option>';
+      NM_MUN_options_str += '<option value="Guararapes">Guararapes</option>';
+      NM_MUN_options_str += '<option value="Guararema">Guararema</option>';
+      NM_MUN_options_str +=
+        '<option value="Guaratinguetá">Guaratinguetá</option>';
+      NM_MUN_options_str += '<option value="Guaraçaí">Guaraçaí</option>';
+      NM_MUN_options_str += '<option value="Guareí">Guareí</option>';
+      NM_MUN_options_str += '<option value="Guariba">Guariba</option>';
+      NM_MUN_options_str += '<option value="Guarujá">Guarujá</option>';
+      NM_MUN_options_str += '<option value="Guarulhos">Guarulhos</option>';
+      NM_MUN_options_str += '<option value="Guará">Guará</option>';
+      NM_MUN_options_str += '<option value="Guatapará">Guatapará</option>';
+      NM_MUN_options_str += '<option value="Guaíra">Guaíra</option>';
+      NM_MUN_options_str += '<option value="Guzolândia">Guzolândia</option>';
+      NM_MUN_options_str += '<option value="Gália">Gália</option>';
+      NM_MUN_options_str += '<option value="Herculândia">Herculândia</option>';
+      NM_MUN_options_str += '<option value="Holambra">Holambra</option>';
+      NM_MUN_options_str += '<option value="Hortolândia">Hortolândia</option>';
+      NM_MUN_options_str += '<option value="Iacanga">Iacanga</option>';
+      NM_MUN_options_str += '<option value="Iacri">Iacri</option>';
+      NM_MUN_options_str += '<option value="Iaras">Iaras</option>';
+      NM_MUN_options_str += '<option value="Ibaté">Ibaté</option>';
+      NM_MUN_options_str += '<option value="Ibirarema">Ibirarema</option>';
+      NM_MUN_options_str += '<option value="Ibirá">Ibirá</option>';
+      NM_MUN_options_str += '<option value="Ibitinga">Ibitinga</option>';
+      NM_MUN_options_str += '<option value="Ibiúna">Ibiúna</option>';
+      NM_MUN_options_str += '<option value="Icém">Icém</option>';
+      NM_MUN_options_str += '<option value="Iepê">Iepê</option>';
+      NM_MUN_options_str += '<option value="Igarapava">Igarapava</option>';
+      NM_MUN_options_str += '<option value="Igaratá">Igaratá</option>';
+      NM_MUN_options_str +=
+        '<option value="Igaraçu do Tietê">Igaraçu do Tietê</option>';
+      NM_MUN_options_str += '<option value="Iguape">Iguape</option>';
+      NM_MUN_options_str +=
+        '<option value="Ilha Comprida">Ilha Comprida</option>';
+      NM_MUN_options_str +=
+        '<option value="Ilha Solteira">Ilha Solteira</option>';
+      NM_MUN_options_str += '<option value="Ilhabela">Ilhabela</option>';
+      NM_MUN_options_str += '<option value="Indaiatuba">Indaiatuba</option>';
+      NM_MUN_options_str += '<option value="Indiana">Indiana</option>';
+      NM_MUN_options_str += '<option value="Indiaporã">Indiaporã</option>';
+      NM_MUN_options_str +=
+        '<option value="Inúbia Paulista">Inúbia Paulista</option>';
+      NM_MUN_options_str += '<option value="Ipaussu">Ipaussu</option>';
+      NM_MUN_options_str += '<option value="Iperó">Iperó</option>';
+      NM_MUN_options_str += '<option value="Ipeúna">Ipeúna</option>';
+      NM_MUN_options_str += '<option value="Ipiguá">Ipiguá</option>';
+      NM_MUN_options_str += '<option value="Iporanga">Iporanga</option>';
+      NM_MUN_options_str += '<option value="Ipuã">Ipuã</option>';
+      NM_MUN_options_str +=
+        '<option value="Iracemápolis">Iracemápolis</option>';
+      NM_MUN_options_str += '<option value="Irapuru">Irapuru</option>';
+      NM_MUN_options_str += '<option value="Irapuã">Irapuã</option>';
+      NM_MUN_options_str += '<option value="Itaberá">Itaberá</option>';
+      NM_MUN_options_str += '<option value="Itajobi">Itajobi</option>';
+      NM_MUN_options_str += '<option value="Itaju">Itaju</option>';
+      NM_MUN_options_str += '<option value="Itanhaém">Itanhaém</option>';
+      NM_MUN_options_str += '<option value="Itaoca">Itaoca</option>';
+      NM_MUN_options_str +=
+        '<option value="Itapecerica da Serra">Itapecerica da Serra</option>';
+      NM_MUN_options_str +=
+        '<option value="Itapetininga">Itapetininga</option>';
+      NM_MUN_options_str += '<option value="Itapeva">Itapeva</option>';
+      NM_MUN_options_str += '<option value="Itapevi">Itapevi</option>';
+      NM_MUN_options_str += '<option value="Itapira">Itapira</option>';
+      NM_MUN_options_str +=
+        '<option value="Itapirapuã Paulista">Itapirapuã Paulista</option>';
+      NM_MUN_options_str += '<option value="Itaporanga">Itaporanga</option>';
+      NM_MUN_options_str += '<option value="Itapura">Itapura</option>';
+      NM_MUN_options_str += '<option value="Itapuí">Itapuí</option>';
+      NM_MUN_options_str +=
+        '<option value="Itaquaquecetuba">Itaquaquecetuba</option>';
+      NM_MUN_options_str += '<option value="Itararé">Itararé</option>';
+      NM_MUN_options_str += '<option value="Itariri">Itariri</option>';
+      NM_MUN_options_str += '<option value="Itatiba">Itatiba</option>';
+      NM_MUN_options_str += '<option value="Itatinga">Itatinga</option>';
+      NM_MUN_options_str += '<option value="Itaí">Itaí</option>';
+      NM_MUN_options_str += '<option value="Itirapina">Itirapina</option>';
+      NM_MUN_options_str += '<option value="Itirapuã">Itirapuã</option>';
+      NM_MUN_options_str += '<option value="Itobi">Itobi</option>';
+      NM_MUN_options_str += '<option value="Itu">Itu</option>';
+      NM_MUN_options_str += '<option value="Itupeva">Itupeva</option>';
+      NM_MUN_options_str += '<option value="Ituverava">Ituverava</option>';
+      NM_MUN_options_str += '<option value="Itápolis">Itápolis</option>';
+      NM_MUN_options_str += '<option value="Jaborandi">Jaborandi</option>';
+      NM_MUN_options_str += '<option value="Jaboticabal">Jaboticabal</option>';
+      NM_MUN_options_str += '<option value="Jacareí">Jacareí</option>';
+      NM_MUN_options_str += '<option value="Jaci">Jaci</option>';
+      NM_MUN_options_str += '<option value="Jacupiranga">Jacupiranga</option>';
+      NM_MUN_options_str += '<option value="Jaguariúna">Jaguariúna</option>';
+      NM_MUN_options_str += '<option value="Jales">Jales</option>';
+      NM_MUN_options_str += '<option value="Jambeiro">Jambeiro</option>';
+      NM_MUN_options_str += '<option value="Jandira">Jandira</option>';
+      NM_MUN_options_str +=
+        '<option value="Jardinópolis">Jardinópolis</option>';
+      NM_MUN_options_str += '<option value="Jarinu">Jarinu</option>';
+      NM_MUN_options_str += '<option value="Jaú">Jaú</option>';
+      NM_MUN_options_str += '<option value="Jeriquara">Jeriquara</option>';
+      NM_MUN_options_str += '<option value="Joanópolis">Joanópolis</option>';
+      NM_MUN_options_str +=
+        '<option value="José Bonifácio">José Bonifácio</option>';
+      NM_MUN_options_str +=
+        '<option value="João Ramalho">João Ramalho</option>';
+      NM_MUN_options_str += '<option value="Jumirim">Jumirim</option>';
+      NM_MUN_options_str += '<option value="Jundiaí">Jundiaí</option>';
+      NM_MUN_options_str +=
+        '<option value="Junqueirópolis">Junqueirópolis</option>';
+      NM_MUN_options_str += '<option value="Juquitiba">Juquitiba</option>';
+      NM_MUN_options_str += '<option value="Juquiá">Juquiá</option>';
+      NM_MUN_options_str +=
+        '<option value="Júlio Mesquita">Júlio Mesquita</option>';
+      NM_MUN_options_str += '<option value="Lagoinha">Lagoinha</option>';
+      NM_MUN_options_str +=
+        '<option value="Laranjal Paulista">Laranjal Paulista</option>';
+      NM_MUN_options_str += '<option value="Lavrinhas">Lavrinhas</option>';
+      NM_MUN_options_str += '<option value="Lavínia">Lavínia</option>';
+      NM_MUN_options_str += '<option value="Leme">Leme</option>';
+      NM_MUN_options_str +=
+        '<option value="Lençóis Paulista">Lençóis Paulista</option>';
+      NM_MUN_options_str += '<option value="Limeira">Limeira</option>';
+      NM_MUN_options_str += '<option value="Lindóia">Lindóia</option>';
+      NM_MUN_options_str += '<option value="Lins">Lins</option>';
+      NM_MUN_options_str += '<option value="Lorena">Lorena</option>';
+      NM_MUN_options_str += '<option value="Lourdes">Lourdes</option>';
+      NM_MUN_options_str += '<option value="Louveira">Louveira</option>';
+      NM_MUN_options_str +=
+        '<option value="Lucianópolis">Lucianópolis</option>';
+      NM_MUN_options_str += '<option value="Lucélia">Lucélia</option>';
+      NM_MUN_options_str += '<option value="Luiziânia">Luiziânia</option>';
+      NM_MUN_options_str += '<option value="Lupércio">Lupércio</option>';
+      NM_MUN_options_str += '<option value="Lutécia">Lutécia</option>';
+      NM_MUN_options_str +=
+        '<option value="Luís Antônio">Luís Antônio</option>';
+      NM_MUN_options_str += '<option value="Macatuba">Macatuba</option>';
+      NM_MUN_options_str += '<option value="Macaubal">Macaubal</option>';
+      NM_MUN_options_str += '<option value="Macedônia">Macedônia</option>';
+      NM_MUN_options_str += '<option value="Magda">Magda</option>';
+      NM_MUN_options_str += '<option value="Mairinque">Mairinque</option>';
+      NM_MUN_options_str += '<option value="Mairiporã">Mairiporã</option>';
+      NM_MUN_options_str += '<option value="Manduri">Manduri</option>';
+      NM_MUN_options_str +=
+        '<option value="Marabá Paulista">Marabá Paulista</option>';
+      NM_MUN_options_str += '<option value="Maracaí">Maracaí</option>';
+      NM_MUN_options_str += '<option value="Marapoama">Marapoama</option>';
+      NM_MUN_options_str += '<option value="Marinópolis">Marinópolis</option>';
+      NM_MUN_options_str += '<option value="Mariápolis">Mariápolis</option>';
+      NM_MUN_options_str +=
+        '<option value="Martinópolis">Martinópolis</option>';
+      NM_MUN_options_str += '<option value="Marília">Marília</option>';
+      NM_MUN_options_str += '<option value="Matão">Matão</option>';
+      NM_MUN_options_str += '<option value="Mauá">Mauá</option>';
+      NM_MUN_options_str += '<option value="Mendonça">Mendonça</option>';
+      NM_MUN_options_str += '<option value="Meridiano">Meridiano</option>';
+      NM_MUN_options_str += '<option value="Mesópolis">Mesópolis</option>';
+      NM_MUN_options_str +=
+        '<option value="Miguelópolis">Miguelópolis</option>';
+      NM_MUN_options_str +=
+        '<option value="Mineiros do Tietê">Mineiros do Tietê</option>';
+      NM_MUN_options_str +=
+        '<option value="Mira Estrela">Mira Estrela</option>';
+      NM_MUN_options_str += '<option value="Miracatu">Miracatu</option>';
+      NM_MUN_options_str +=
+        '<option value="Mirandópolis">Mirandópolis</option>';
+      NM_MUN_options_str +=
+        '<option value="Mirante do Paranapanema">Mirante do Paranapanema</option>';
+      NM_MUN_options_str += '<option value="Mirassol">Mirassol</option>';
+      NM_MUN_options_str +=
+        '<option value="Mirassolândia">Mirassolândia</option>';
+      NM_MUN_options_str += '<option value="Mococa">Mococa</option>';
+      NM_MUN_options_str += '<option value="Mogi Guaçu">Mogi Guaçu</option>';
+      NM_MUN_options_str += '<option value="Mogi Mirim">Mogi Mirim</option>';
+      NM_MUN_options_str +=
+        '<option value="Mogi das Cruzes">Mogi das Cruzes</option>';
+      NM_MUN_options_str += '<option value="Mombuca">Mombuca</option>';
+      NM_MUN_options_str += '<option value="Mongaguá">Mongaguá</option>';
+      NM_MUN_options_str +=
+        '<option value="Monte Alegre do Sul">Monte Alegre do Sul</option>';
+      NM_MUN_options_str += '<option value="Monte Alto">Monte Alto</option>';
+      NM_MUN_options_str +=
+        '<option value="Monte Aprazível">Monte Aprazível</option>';
+      NM_MUN_options_str +=
+        '<option value="Monte Azul Paulista">Monte Azul Paulista</option>';
+      NM_MUN_options_str +=
+        '<option value="Monte Castelo">Monte Castelo</option>';
+      NM_MUN_options_str += '<option value="Monte Mor">Monte Mor</option>';
+      NM_MUN_options_str +=
+        '<option value="Monteiro Lobato">Monteiro Lobato</option>';
+      NM_MUN_options_str += '<option value="Monções">Monções</option>';
+      NM_MUN_options_str += '<option value="Morro Agudo">Morro Agudo</option>';
+      NM_MUN_options_str += '<option value="Morungaba">Morungaba</option>';
+      NM_MUN_options_str += '<option value="Motuca">Motuca</option>';
+      NM_MUN_options_str +=
+        '<option value="Murutinga do Sul">Murutinga do Sul</option>';
+      NM_MUN_options_str += '<option value="Nantes">Nantes</option>';
+      NM_MUN_options_str += '<option value="Narandiba">Narandiba</option>';
+      NM_MUN_options_str +=
+        '<option value="Natividade da Serra">Natividade da Serra</option>';
+      NM_MUN_options_str +=
+        '<option value="Nazaré Paulista">Nazaré Paulista</option>';
+      NM_MUN_options_str +=
+        '<option value="Neves Paulista">Neves Paulista</option>';
+      NM_MUN_options_str += '<option value="Nhandeara">Nhandeara</option>';
+      NM_MUN_options_str += '<option value="Nipoã">Nipoã</option>';
+      NM_MUN_options_str +=
+        '<option value="Nova Aliança">Nova Aliança</option>';
+      NM_MUN_options_str +=
+        '<option value="Nova Campina">Nova Campina</option>';
+      NM_MUN_options_str +=
+        '<option value="Nova Canaã Paulista">Nova Canaã Paulista</option>';
+      NM_MUN_options_str +=
+        '<option value="Nova Castilho">Nova Castilho</option>';
+      NM_MUN_options_str += '<option value="Nova Europa">Nova Europa</option>';
+      NM_MUN_options_str +=
+        '<option value="Nova Granada">Nova Granada</option>';
+      NM_MUN_options_str +=
+        '<option value="Nova Guataporanga">Nova Guataporanga</option>';
+      NM_MUN_options_str +=
+        '<option value="Nova Independência">Nova Independência</option>';
+      NM_MUN_options_str +=
+        '<option value="Nova Luzitânia">Nova Luzitânia</option>';
+      NM_MUN_options_str += '<option value="Nova Odessa">Nova Odessa</option>';
+      NM_MUN_options_str += '<option value="Novais">Novais</option>';
+      NM_MUN_options_str +=
+        '<option value="Novo Horizonte">Novo Horizonte</option>';
+      NM_MUN_options_str += '<option value="Nuporanga">Nuporanga</option>';
+      NM_MUN_options_str += '<option value="Ocauçu">Ocauçu</option>';
+      NM_MUN_options_str += '<option value="Olímpia">Olímpia</option>';
+      NM_MUN_options_str += '<option value="Onda Verde">Onda Verde</option>';
+      NM_MUN_options_str += '<option value="Oriente">Oriente</option>';
+      NM_MUN_options_str += '<option value="Orindiúva">Orindiúva</option>';
+      NM_MUN_options_str += '<option value="Orlândia">Orlândia</option>';
+      NM_MUN_options_str += '<option value="Osasco">Osasco</option>';
+      NM_MUN_options_str +=
+        '<option value="Oscar Bressane">Oscar Bressane</option>';
+      NM_MUN_options_str +=
+        '<option value="Osvaldo Cruz">Osvaldo Cruz</option>';
+      NM_MUN_options_str += '<option value="Ourinhos">Ourinhos</option>';
+      NM_MUN_options_str += '<option value="Ouro Verde">Ouro Verde</option>';
+      NM_MUN_options_str += '<option value="Ouroeste">Ouroeste</option>';
+      NM_MUN_options_str += '<option value="Pacaembu">Pacaembu</option>';
+      NM_MUN_options_str += '<option value="Palestina">Palestina</option>';
+      NM_MUN_options_str +=
+        '<option value="Palmares Paulista">Palmares Paulista</option>';
+      NM_MUN_options_str +=
+        '<option value="Palmeira d&apos;Oeste">Palmeira d&apos;Oeste</option>';
+      NM_MUN_options_str += '<option value="Palmital">Palmital</option>';
+      NM_MUN_options_str += '<option value="Panorama">Panorama</option>';
+      NM_MUN_options_str +=
+        '<option value="Paraguaçu Paulista">Paraguaçu Paulista</option>';
+      NM_MUN_options_str += '<option value="Paraibuna">Paraibuna</option>';
+      NM_MUN_options_str +=
+        '<option value="Paranapanema">Paranapanema</option>';
+      NM_MUN_options_str += '<option value="Paranapuã">Paranapuã</option>';
+      NM_MUN_options_str += '<option value="Parapuã">Parapuã</option>';
+      NM_MUN_options_str += '<option value="Paraíso">Paraíso</option>';
+      NM_MUN_options_str += '<option value="Pardinho">Pardinho</option>';
+      NM_MUN_options_str +=
+        '<option value="Pariquera-Açu">Pariquera-Açu</option>';
+      NM_MUN_options_str += '<option value="Parisi">Parisi</option>';
+      NM_MUN_options_str +=
+        '<option value="Patrocínio Paulista">Patrocínio Paulista</option>';
+      NM_MUN_options_str += '<option value="Paulicéia">Paulicéia</option>';
+      NM_MUN_options_str += '<option value="Paulistânia">Paulistânia</option>';
+      NM_MUN_options_str +=
+        '<option value="Paulo de Faria">Paulo de Faria</option>';
+      NM_MUN_options_str += '<option value="Paulínia">Paulínia</option>';
+      NM_MUN_options_str += '<option value="Pederneiras">Pederneiras</option>';
+      NM_MUN_options_str += '<option value="Pedra Bela">Pedra Bela</option>';
+      NM_MUN_options_str +=
+        '<option value="Pedranópolis">Pedranópolis</option>';
+      NM_MUN_options_str += '<option value="Pedregulho">Pedregulho</option>';
+      NM_MUN_options_str += '<option value="Pedreira">Pedreira</option>';
+      NM_MUN_options_str +=
+        '<option value="Pedrinhas Paulista">Pedrinhas Paulista</option>';
+      NM_MUN_options_str +=
+        '<option value="Pedro de Toledo">Pedro de Toledo</option>';
+      NM_MUN_options_str += '<option value="Penápolis">Penápolis</option>';
+      NM_MUN_options_str +=
+        '<option value="Pereira Barreto">Pereira Barreto</option>';
+      NM_MUN_options_str += '<option value="Pereiras">Pereiras</option>';
+      NM_MUN_options_str += '<option value="Peruíbe">Peruíbe</option>';
+      NM_MUN_options_str += '<option value="Piacatu">Piacatu</option>';
+      NM_MUN_options_str += '<option value="Piedade">Piedade</option>';
+      NM_MUN_options_str +=
+        '<option value="Pilar do Sul">Pilar do Sul</option>';
+      NM_MUN_options_str +=
+        '<option value="Pindamonhangaba">Pindamonhangaba</option>';
+      NM_MUN_options_str += '<option value="Pindorama">Pindorama</option>';
+      NM_MUN_options_str += '<option value="Pinhalzinho">Pinhalzinho</option>';
+      NM_MUN_options_str += '<option value="Piquerobi">Piquerobi</option>';
+      NM_MUN_options_str += '<option value="Piquete">Piquete</option>';
+      NM_MUN_options_str += '<option value="Piracaia">Piracaia</option>';
+      NM_MUN_options_str += '<option value="Piracicaba">Piracicaba</option>';
+      NM_MUN_options_str += '<option value="Piraju">Piraju</option>';
+      NM_MUN_options_str += '<option value="Pirajuí">Pirajuí</option>';
+      NM_MUN_options_str += '<option value="Pirangi">Pirangi</option>';
+      NM_MUN_options_str +=
+        '<option value="Pirapora do Bom Jesus">Pirapora do Bom Jesus</option>';
+      NM_MUN_options_str += '<option value="Pirapozinho">Pirapozinho</option>';
+      NM_MUN_options_str +=
+        '<option value="Pirassununga">Pirassununga</option>';
+      NM_MUN_options_str += '<option value="Piratininga">Piratininga</option>';
+      NM_MUN_options_str +=
+        '<option value="Pitangueiras">Pitangueiras</option>';
+      NM_MUN_options_str += '<option value="Planalto">Planalto</option>';
+      NM_MUN_options_str += '<option value="Platina">Platina</option>';
+      NM_MUN_options_str += '<option value="Poloni">Poloni</option>';
+      NM_MUN_options_str += '<option value="Pompéia">Pompéia</option>';
+      NM_MUN_options_str += '<option value="Pongaí">Pongaí</option>';
+      NM_MUN_options_str += '<option value="Pontal">Pontal</option>';
+      NM_MUN_options_str += '<option value="Pontalinda">Pontalinda</option>';
+      NM_MUN_options_str +=
+        '<option value="Pontes Gestal">Pontes Gestal</option>';
+      NM_MUN_options_str += '<option value="Populina">Populina</option>';
+      NM_MUN_options_str += '<option value="Porangaba">Porangaba</option>';
+      NM_MUN_options_str += '<option value="Porto Feliz">Porto Feliz</option>';
+      NM_MUN_options_str +=
+        '<option value="Porto Ferreira">Porto Ferreira</option>';
+      NM_MUN_options_str += '<option value="Potim">Potim</option>';
+      NM_MUN_options_str += '<option value="Potirendaba">Potirendaba</option>';
+      NM_MUN_options_str += '<option value="Poá">Poá</option>';
+      NM_MUN_options_str += '<option value="Pracinha">Pracinha</option>';
+      NM_MUN_options_str += '<option value="Pradópolis">Pradópolis</option>';
+      NM_MUN_options_str +=
+        '<option value="Praia Grande">Praia Grande</option>';
+      NM_MUN_options_str += '<option value="Pratânia">Pratânia</option>';
+      NM_MUN_options_str +=
+        '<option value="Presidente Alves">Presidente Alves</option>';
+      NM_MUN_options_str +=
+        '<option value="Presidente Bernardes">Presidente Bernardes</option>';
+      NM_MUN_options_str +=
+        '<option value="Presidente Epitácio">Presidente Epitácio</option>';
+      NM_MUN_options_str +=
+        '<option value="Presidente Prudente">Presidente Prudente</option>';
+      NM_MUN_options_str +=
+        '<option value="Presidente Venceslau">Presidente Venceslau</option>';
+      NM_MUN_options_str += '<option value="Promissão">Promissão</option>';
+      NM_MUN_options_str += '<option value="Quadra">Quadra</option>';
+      NM_MUN_options_str += '<option value="Quatá">Quatá</option>';
+      NM_MUN_options_str += '<option value="Queiroz">Queiroz</option>';
+      NM_MUN_options_str += '<option value="Queluz">Queluz</option>';
+      NM_MUN_options_str += '<option value="Quintana">Quintana</option>';
+      NM_MUN_options_str += '<option value="Rafard">Rafard</option>';
+      NM_MUN_options_str += '<option value="Rancharia">Rancharia</option>';
+      NM_MUN_options_str +=
+        '<option value="Redenção da Serra">Redenção da Serra</option>';
+      NM_MUN_options_str +=
+        '<option value="Regente Feijó">Regente Feijó</option>';
+      NM_MUN_options_str += '<option value="Reginópolis">Reginópolis</option>';
+      NM_MUN_options_str += '<option value="Registro">Registro</option>';
+      NM_MUN_options_str += '<option value="Restinga">Restinga</option>';
+      NM_MUN_options_str += '<option value="Ribeira">Ribeira</option>';
+      NM_MUN_options_str +=
+        '<option value="Ribeirão Bonito">Ribeirão Bonito</option>';
+      NM_MUN_options_str +=
+        '<option value="Ribeirão Branco">Ribeirão Branco</option>';
+      NM_MUN_options_str +=
+        '<option value="Ribeirão Corrente">Ribeirão Corrente</option>';
+      NM_MUN_options_str +=
+        '<option value="Ribeirão Grande">Ribeirão Grande</option>';
+      NM_MUN_options_str +=
+        '<option value="Ribeirão Pires">Ribeirão Pires</option>';
+      NM_MUN_options_str +=
+        '<option value="Ribeirão Preto">Ribeirão Preto</option>';
+      NM_MUN_options_str +=
+        '<option value="Ribeirão do Sul">Ribeirão do Sul</option>';
+      NM_MUN_options_str +=
+        '<option value="Ribeirão dos Índios">Ribeirão dos Índios</option>';
+      NM_MUN_options_str += '<option value="Rifaina">Rifaina</option>';
+      NM_MUN_options_str += '<option value="Rincão">Rincão</option>';
+      NM_MUN_options_str += '<option value="Rinópolis">Rinópolis</option>';
+      NM_MUN_options_str += '<option value="Rio Claro">Rio Claro</option>';
+      NM_MUN_options_str +=
+        '<option value="Rio Grande da Serra">Rio Grande da Serra</option>';
+      NM_MUN_options_str +=
+        '<option value="Rio das Pedras">Rio das Pedras</option>';
+      NM_MUN_options_str += '<option value="Riolândia">Riolândia</option>';
+      NM_MUN_options_str += '<option value="Riversul">Riversul</option>';
+      NM_MUN_options_str += '<option value="Rosana">Rosana</option>';
+      NM_MUN_options_str += '<option value="Roseira">Roseira</option>';
+      NM_MUN_options_str += '<option value="Rubinéia">Rubinéia</option>';
+      NM_MUN_options_str += '<option value="Rubiácea">Rubiácea</option>';
+      NM_MUN_options_str += '<option value="Sabino">Sabino</option>';
+      NM_MUN_options_str += '<option value="Sagres">Sagres</option>';
+      NM_MUN_options_str += '<option value="Sales">Sales</option>';
+      NM_MUN_options_str +=
+        '<option value="Sales Oliveira">Sales Oliveira</option>';
+      NM_MUN_options_str += '<option value="Salesópolis">Salesópolis</option>';
+      NM_MUN_options_str += '<option value="Salmourão">Salmourão</option>';
+      NM_MUN_options_str += '<option value="Saltinho">Saltinho</option>';
+      NM_MUN_options_str += '<option value="Salto">Salto</option>';
+      NM_MUN_options_str +=
+        '<option value="Salto Grande">Salto Grande</option>';
+      NM_MUN_options_str +=
+        '<option value="Salto de Pirapora">Salto de Pirapora</option>';
+      NM_MUN_options_str += '<option value="Sandovalina">Sandovalina</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Adélia">Santa Adélia</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Albertina">Santa Albertina</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Branca">Santa Branca</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Bárbara d&apos;Oeste">Santa Bárbara d&apos;Oeste</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Clara d&apos;Oeste">Santa Clara d&apos;Oeste</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Cruz da Conceição">Santa Cruz da Conceição</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Cruz da Esperança">Santa Cruz da Esperança</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Cruz das Palmeiras">Santa Cruz das Palmeiras</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Cruz do Rio Pardo">Santa Cruz do Rio Pardo</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Ernestina">Santa Ernestina</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Fé do Sul">Santa Fé do Sul</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Gertrudes">Santa Gertrudes</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Isabel">Santa Isabel</option>';
+      NM_MUN_options_str += '<option value="Santa Lúcia">Santa Lúcia</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Maria da Serra">Santa Maria da Serra</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Mercedes">Santa Mercedes</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Rita d&apos;Oeste">Santa Rita d&apos;Oeste</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Rita do Passa Quatro">Santa Rita do Passa Quatro</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Rosa de Viterbo">Santa Rosa de Viterbo</option>';
+      NM_MUN_options_str +=
+        '<option value="Santa Salete">Santa Salete</option>';
+      NM_MUN_options_str +=
+        '<option value="Santana da Ponte Pensa">Santana da Ponte Pensa</option>';
+      NM_MUN_options_str +=
+        '<option value="Santana de Parnaíba">Santana de Parnaíba</option>';
+      NM_MUN_options_str +=
+        '<option value="Santo Anastácio">Santo Anastácio</option>';
+      NM_MUN_options_str += '<option value="Santo André">Santo André</option>';
+      NM_MUN_options_str +=
+        '<option value="Santo Antônio da Alegria">Santo Antônio da Alegria</option>';
+      NM_MUN_options_str +=
+        '<option value="Santo Antônio de Posse">Santo Antônio de Posse</option>';
+      NM_MUN_options_str +=
+        '<option value="Santo Antônio do Aracanguá">Santo Antônio do Aracanguá</option>';
+      NM_MUN_options_str +=
+        '<option value="Santo Antônio do Jardim">Santo Antônio do Jardim</option>';
+      NM_MUN_options_str +=
+        '<option value="Santo Antônio do Pinhal">Santo Antônio do Pinhal</option>';
+      NM_MUN_options_str +=
+        '<option value="Santo Expedito">Santo Expedito</option>';
+      NM_MUN_options_str += '<option value="Santos">Santos</option>';
+      NM_MUN_options_str +=
+        '<option value="Santópolis do Aguapeí">Santópolis do Aguapeí</option>';
+      NM_MUN_options_str += '<option value="Sarapuí">Sarapuí</option>';
+      NM_MUN_options_str += '<option value="Sarutaiá">Sarutaiá</option>';
+      NM_MUN_options_str +=
+        '<option value="Sebastianópolis do Sul">Sebastianópolis do Sul</option>';
+      NM_MUN_options_str += '<option value="Serra Azul">Serra Azul</option>';
+      NM_MUN_options_str += '<option value="Serra Negra">Serra Negra</option>';
+      NM_MUN_options_str += '<option value="Serrana">Serrana</option>';
+      NM_MUN_options_str += '<option value="Sertãozinho">Sertãozinho</option>';
+      NM_MUN_options_str += '<option value="Sete Barras">Sete Barras</option>';
+      NM_MUN_options_str += '<option value="Severínia">Severínia</option>';
+      NM_MUN_options_str += '<option value="Silveiras">Silveiras</option>';
+      NM_MUN_options_str += '<option value="Socorro">Socorro</option>';
+      NM_MUN_options_str += '<option value="Sorocaba">Sorocaba</option>';
+      NM_MUN_options_str +=
+        '<option value="Sud Mennucci">Sud Mennucci</option>';
+      NM_MUN_options_str += '<option value="Sumaré">Sumaré</option>';
+      NM_MUN_options_str += '<option value="Suzano">Suzano</option>';
+      NM_MUN_options_str += '<option value="Suzanápolis">Suzanápolis</option>';
+      NM_MUN_options_str +=
+        '<option value="São Bento do Sapucaí">São Bento do Sapucaí</option>';
+      NM_MUN_options_str +=
+        '<option value="São Bernardo do Campo">São Bernardo do Campo</option>';
+      NM_MUN_options_str +=
+        '<option value="São Caetano do Sul">São Caetano do Sul</option>';
+      NM_MUN_options_str += '<option value="São Carlos">São Carlos</option>';
+      NM_MUN_options_str +=
+        '<option value="São Francisco">São Francisco</option>';
+      NM_MUN_options_str +=
+        '<option value="São Joaquim da Barra">São Joaquim da Barra</option>';
+      NM_MUN_options_str +=
+        '<option value="São José da Bela Vista">São José da Bela Vista</option>';
+      NM_MUN_options_str +=
+        '<option value="São José do Barreiro">São José do Barreiro</option>';
+      NM_MUN_options_str +=
+        '<option value="São José do Rio Pardo">São José do Rio Pardo</option>';
+      NM_MUN_options_str +=
+        '<option value="São José do Rio Preto">São José do Rio Preto</option>';
+      NM_MUN_options_str +=
+        '<option value="São José dos Campos">São José dos Campos</option>';
+      NM_MUN_options_str +=
+        '<option value="São João da Boa Vista">São João da Boa Vista</option>';
+      NM_MUN_options_str +=
+        '<option value="São João das Duas Pontes">São João das Duas Pontes</option>';
+      NM_MUN_options_str +=
+        '<option value="São João de Iracema">São João de Iracema</option>';
+      NM_MUN_options_str +=
+        '<option value="São João do Pau d&apos;Alho">São João do Pau d&apos;Alho</option>';
+      NM_MUN_options_str +=
+        '<option value="São Lourenço da Serra">São Lourenço da Serra</option>';
+      NM_MUN_options_str +=
+        '<option value="São Luiz do Paraitinga">São Luiz do Paraitinga</option>';
+      NM_MUN_options_str += '<option value="São Manuel">São Manuel</option>';
+      NM_MUN_options_str +=
+        '<option value="São Miguel Arcanjo">São Miguel Arcanjo</option>';
+      NM_MUN_options_str += '<option value="São Paulo">São Paulo</option>';
+      NM_MUN_options_str += '<option value="São Pedro">São Pedro</option>';
+      NM_MUN_options_str +=
+        '<option value="São Pedro do Turvo">São Pedro do Turvo</option>';
+      NM_MUN_options_str += '<option value="São Roque">São Roque</option>';
+      NM_MUN_options_str +=
+        '<option value="São Sebastião">São Sebastião</option>';
+      NM_MUN_options_str +=
+        '<option value="São Sebastião da Grama">São Sebastião da Grama</option>';
+      NM_MUN_options_str += '<option value="São Simão">São Simão</option>';
+      NM_MUN_options_str += '<option value="São Vicente">São Vicente</option>';
+      NM_MUN_options_str += '<option value="Tabapuã">Tabapuã</option>';
+      NM_MUN_options_str += '<option value="Tabatinga">Tabatinga</option>';
+      NM_MUN_options_str +=
+        '<option value="Taboão da Serra">Taboão da Serra</option>';
+      NM_MUN_options_str += '<option value="Taciba">Taciba</option>';
+      NM_MUN_options_str += '<option value="Taguaí">Taguaí</option>';
+      NM_MUN_options_str += '<option value="Taiaçu">Taiaçu</option>';
+      NM_MUN_options_str += '<option value="Taiúva">Taiúva</option>';
+      NM_MUN_options_str += '<option value="Tambaú">Tambaú</option>';
+      NM_MUN_options_str += '<option value="Tanabi">Tanabi</option>';
+      NM_MUN_options_str += '<option value="Tapiratiba">Tapiratiba</option>';
+      NM_MUN_options_str += '<option value="Tapiraí">Tapiraí</option>';
+      NM_MUN_options_str += '<option value="Taquaral">Taquaral</option>';
+      NM_MUN_options_str +=
+        '<option value="Taquaritinga">Taquaritinga</option>';
+      NM_MUN_options_str += '<option value="Taquarituba">Taquarituba</option>';
+      NM_MUN_options_str += '<option value="Taquarivaí">Taquarivaí</option>';
+      NM_MUN_options_str += '<option value="Tarabai">Tarabai</option>';
+      NM_MUN_options_str += '<option value="Tarumã">Tarumã</option>';
+      NM_MUN_options_str += '<option value="Tatuí">Tatuí</option>';
+      NM_MUN_options_str += '<option value="Taubaté">Taubaté</option>';
+      NM_MUN_options_str += '<option value="Tejupá">Tejupá</option>';
+      NM_MUN_options_str +=
+        '<option value="Teodoro Sampaio">Teodoro Sampaio</option>';
+      NM_MUN_options_str += '<option value="Terra Roxa">Terra Roxa</option>';
+      NM_MUN_options_str += '<option value="Tietê">Tietê</option>';
+      NM_MUN_options_str += '<option value="Timburi">Timburi</option>';
+      NM_MUN_options_str +=
+        '<option value="Torre de Pedra">Torre de Pedra</option>';
+      NM_MUN_options_str += '<option value="Torrinha">Torrinha</option>';
+      NM_MUN_options_str += '<option value="Trabiju">Trabiju</option>';
+      NM_MUN_options_str += '<option value="Tremembé">Tremembé</option>';
+      NM_MUN_options_str +=
+        '<option value="Três Fronteiras">Três Fronteiras</option>';
+      NM_MUN_options_str += '<option value="Tuiuti">Tuiuti</option>';
+      NM_MUN_options_str +=
+        '<option value="Tupi Paulista">Tupi Paulista</option>';
+      NM_MUN_options_str += '<option value="Tupã">Tupã</option>';
+      NM_MUN_options_str += '<option value="Turiúba">Turiúba</option>';
+      NM_MUN_options_str += '<option value="Turmalina">Turmalina</option>';
+      NM_MUN_options_str += '<option value="Ubarana">Ubarana</option>';
+      NM_MUN_options_str += '<option value="Ubatuba">Ubatuba</option>';
+      NM_MUN_options_str += '<option value="Ubirajara">Ubirajara</option>';
+      NM_MUN_options_str += '<option value="Uchoa">Uchoa</option>';
+      NM_MUN_options_str +=
+        '<option value="União Paulista">União Paulista</option>';
+      NM_MUN_options_str += '<option value="Uru">Uru</option>';
+      NM_MUN_options_str += '<option value="Urupês">Urupês</option>';
+      NM_MUN_options_str += '<option value="Urânia">Urânia</option>';
+      NM_MUN_options_str +=
+        '<option value="Valentim Gentil">Valentim Gentil</option>';
+      NM_MUN_options_str += '<option value="Valinhos">Valinhos</option>';
+      NM_MUN_options_str += '<option value="Valparaíso">Valparaíso</option>';
+      NM_MUN_options_str += '<option value="Vargem">Vargem</option>';
+      NM_MUN_options_str +=
+        '<option value="Vargem Grande Paulista">Vargem Grande Paulista</option>';
+      NM_MUN_options_str +=
+        '<option value="Vargem Grande do Sul">Vargem Grande do Sul</option>';
+      NM_MUN_options_str += '<option value="Vera Cruz">Vera Cruz</option>';
+      NM_MUN_options_str += '<option value="Vinhedo">Vinhedo</option>';
+      NM_MUN_options_str += '<option value="Viradouro">Viradouro</option>';
+      NM_MUN_options_str +=
+        '<option value="Vista Alegre do Alto">Vista Alegre do Alto</option>';
+      NM_MUN_options_str +=
+        '<option value="Vitória Brasil">Vitória Brasil</option>';
+      NM_MUN_options_str += '<option value="Votorantim">Votorantim</option>';
+      NM_MUN_options_str += '<option value="Votuporanga">Votuporanga</option>';
+      NM_MUN_options_str +=
+        '<option value="Várzea Paulista">Várzea Paulista</option>';
+      NM_MUN_options_str += '<option value="Zacarias">Zacarias</option>';
+      NM_MUN_options_str +=
+        '<option value="Águas da Prata">Águas da Prata</option>';
+      NM_MUN_options_str +=
+        '<option value="Águas de Lindóia">Águas de Lindóia</option>';
+      NM_MUN_options_str +=
+        '<option value="Águas de Santa Bárbara">Águas de Santa Bárbara</option>';
+      NM_MUN_options_str +=
+        '<option value="Águas de São Pedro">Águas de São Pedro</option>';
+      NM_MUN_options_str +=
+        '<option value="Álvares Florence">Álvares Florence</option>';
+      NM_MUN_options_str +=
+        '<option value="Álvares Machado">Álvares Machado</option>';
+      NM_MUN_options_str +=
+        '<option value="Álvaro de Carvalho">Álvaro de Carvalho</option>';
+      NM_MUN_options_str += '<option value="Óleo">Óleo</option>';
+      sel_NM_MUN.innerHTML = NM_MUN_options_str;
+      div_NM_MUN.appendChild(sel_NM_MUN);
+      var lab_NM_MUN = document.createElement("div");
+      lab_NM_MUN.innerHTML = "NM_MUN";
+      lab_NM_MUN.className = "filterlabel";
+      div_NM_MUN.appendChild(lab_NM_MUN);
+      var reset_NM_MUN = document.createElement("div");
+      reset_NM_MUN.innerHTML = "clear filter";
+      reset_NM_MUN.className = "filterlabel";
+      reset_NM_MUN.onclick = function () {
+        var options = document.getElementById("sel_NM_MUN").options;
+        for (var i = 0; i < options.length; i++) {
+          options[i].selected = false;
+        }
+        filterFunc();
+      };
+      div_NM_MUN.appendChild(reset_NM_MUN);
+      resetLabels([layer_SP_Municipios_2021_1, layer_RegioesHidrograficas_2]);
+      map.on("zoomend", function () {
+        resetLabels([layer_SP_Municipios_2021_1, layer_RegioesHidrograficas_2]);
+      });
+      map.on("layeradd", function () {
+        resetLabels([layer_SP_Municipios_2021_1, layer_RegioesHidrograficas_2]);
+      });
+      map.on("layerremove", function () {
+        resetLabels([layer_SP_Municipios_2021_1, layer_RegioesHidrograficas_2]);
+      });
+    </script>
+  </body>
+</html>
